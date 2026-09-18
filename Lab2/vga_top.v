@@ -14,8 +14,9 @@ module vga_top(
     output wire Hsync
 );
 
-    reg [2:0] btnU_sync = 3'b000, btnC_sync = 3'b000;
+    (* ASYNC_REG = "TRUE" *) reg [2:0] btnU_sync = 3'b000, btnC_sync = 3'b000;
     
+    // metastability sync registers
     always @(posedge clk) begin
         btnU_sync[0] <= btnU;
         btnU_sync[1] <= btnU_sync[0];
@@ -35,10 +36,12 @@ module vga_top(
     reg btn_change = 0;
     reg debounce_done = 0;
     
+    // sequential state machine block for buttons
     always @(posedge clk) begin
             curr_st <= next_st;
     end
     
+    // combinational next state block for buttons
     always @(*) begin
         next_st = curr_st;
         case(curr_st)
@@ -74,6 +77,7 @@ module vga_top(
         endcase
     end
     
+    // button debounce counter + flags
     always @(posedge clk) begin
         if (curr_st == BTN_DEBOUNCE) begin
             debounce_cnt <= debounce_cnt + 1'b1;
@@ -101,6 +105,7 @@ module vga_top(
     assign increment_color = (curr_st == BTNU_PRESS);
     assign rst = (curr_st == BTNC_PRESS);
     
+    // color counter
     always @(posedge clk) begin
         if (rst) begin
             color <= 3'b000;
@@ -109,6 +114,7 @@ module vga_top(
         end
     end
 
+    // vga driver module
     vga_driver vga (
         .color(color),
         .rst(rst),

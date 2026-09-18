@@ -13,18 +13,21 @@ module vga_driver (
     output wire h_sync,
     output wire v_sync
 );
+    // pixel intervals for each horizontal portion
     localparam H_VISIBLE = 10'd640;
     localparam H_FRONT = 10'd16;
     localparam H_SYNC_PULSE = 10'd96;
     localparam H_BACK = 10'd48;
     localparam H_PIXELS = H_VISIBLE + H_FRONT + H_SYNC_PULSE + H_BACK;
     
+    // pixel intervals for each vertical portion
     localparam V_VISIBLE = 10'd480;
     localparam V_FRONT = 10'd10;
     localparam V_SYNC_PULSE = 10'd2;
     localparam V_BACK = 10'd33;
     localparam V_PIXELS = V_VISIBLE + V_FRONT + V_SYNC_PULSE + V_BACK;
 
+    // hex codes for the colors, each 4-bit RGB channel
     localparam BLACK = 12'h000;
     localparam WHITE = 12'hFFF;
     localparam RED = 12'hF00;
@@ -59,6 +62,7 @@ module vga_driver (
     
     assign pixel_tick = (pixel_clk_div == 2'd3);
     
+    // 25 MHz clock divider derived from 100 MHz clock
     always @(posedge clk) begin
         pixel_clk_div <= pixel_clk_div + 1'b1;
     end
@@ -66,6 +70,7 @@ module vga_driver (
     reg [$clog2(H_PIXELS):0] h_sync_cnt = 0;
     reg [$clog2(V_PIXELS):0] v_sync_cnt = 0;
     
+    // active region and h/vsync signals
     assign active_region = (h_sync_cnt < H_VISIBLE) && (v_sync_cnt < V_VISIBLE);
     
     assign h_sync = ~((h_sync_cnt > (H_VISIBLE + H_FRONT - 1)) && (h_sync_cnt < (H_VISIBLE + H_FRONT + H_SYNC_PULSE)));
