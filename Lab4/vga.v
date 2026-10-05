@@ -38,6 +38,8 @@ wire [7:0] font_row;
 reg [7:0] curr_font_row;
 reg [3:0] curr_key_press;
 
+// font ROM files omitted as they are generted using vivado
+// IP generator tool with the given font.coe file
 blk_mem_gen_0 font_rom (
     .clka(clk),
     .ena(1'b1),
